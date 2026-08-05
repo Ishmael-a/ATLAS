@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Sender {
+  USER
+  BOT
+  SYSTEM
+}
+
+enum MessageType {
+  USER
+  ANSWER  
+  NAVIGATION
+  OUT_OF_SCOPE
+}
+
+enum ProjectType {
+  PERSONAL
+  PROFESSIONAL
+}
+enum ProjectLayer {
+  FRONTEND
+  BACKEND
+  FULLSTACK
+  OTHER
+}
+
+
+enum SkillProficiency {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model Conversation {
+  id          String   @id @default(uuid())
+  Messages    Message[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id          String @id @default(uuid())
+  content     String
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  messageType MessageType
+  sentBy      Sender
+  sentAt      DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  githubUrl   String
+  liveUrl     String?
+  techStack   String[]
+  highlights  String[]
+  type        ProjectType
+  layer       ProjectLayer
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  category    String
+  proficiency  SkillProficiency
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Experience {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  company     String
+  role        String
+  startDate   DateTime
+  endDate     DateTime?
+  location    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model About {
+  id          String   @id @default(uuid())
+  email       String
+  phone       String
+  LinkedIn    String 
+  GitHub      String
+  bio         String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Page {
+  id          String   @id @default(uuid())
+  name       String
+  PageSections PageSection[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PageSection {
+  id          String   @id @default(uuid())
+  pageId      String
+  page        Page @relation(fields: [pageId], references: [id])
+  name       String
+  elementId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

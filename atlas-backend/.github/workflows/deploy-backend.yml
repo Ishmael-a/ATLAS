@@ -1,0 +1,40 @@
+# ci workflow for type checking and building backend on any change coming in to main
+
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'atlas-backend/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'atlas-backend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install project dependencies
+        working-directory: atlas-backend
+        run:  npm install
+
+      - name: Type-check project
+        working-directory: atlas-backend
+        run:  npx tsc --noEmit
+
+      # Goal: Successfully build code
+      - name: Build project
+        working-directory: atlas-backend
+        run:  npm run build
