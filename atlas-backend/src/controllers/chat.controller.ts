@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ChatService } from '../services/chat.service';
 import { SSEStream } from '../streaming/sse';
 import { ValidationError } from '../lib/errors';
+import { getRandomStatus, StatusCategory } from '../utils/statusMessages';
 
 class ChatController {
   private chatService: ChatService;
@@ -45,7 +46,7 @@ class ChatController {
       sseStream = new SSEStream(response);
       sseStream.open();
       sseStream.sendEvent('STATUS', {
-        status: 'Let me think about that..',
+        status: getRandomStatus(StatusCategory.THINKING),
       });
 
       // classify message with OpenAI

@@ -1,9 +1,8 @@
 import { ProjectLayer, ProjectType, SkillProficiency } from "../src/generated/prisma/client";
 import { prisma } from "../src/config/db";
-import { OpenAIEmbeddingClient } from "../src/integrations/openai.embedding.client";
 import { GeminiEmbeddingClient } from "../src/integrations/gemini.embedding.client";
 
-let embeddingClient : OpenAIEmbeddingClient | GeminiEmbeddingClient = new GeminiEmbeddingClient();
+const embeddingClient = new GeminiEmbeddingClient();
 
 const pages = [
   {
@@ -153,31 +152,8 @@ const about = {
   `,
 };
 
-async function vectorizeText(text: string): Promise<number[]> {
-  if (!embeddingClient) {
-    throw new Error("Embedding client not initialized");
-  }
-
-  let vectorizedText: number[] | undefined = undefined;
-  try{
-    vectorizedText = await embeddingClient.embed(text);
-  } catch (error) {
-    console.error("Error vectorizing text with OpenAI:", error);
-    // trying gemini
-    try {
-      embeddingClient = new OpenAIEmbeddingClient();
-      vectorizedText = await embeddingClient.embed(text);
-    } catch (geminiError) {
-      throw new Error("All embedding providers failed");
-    }
-  }
-
-
-  if(!vectorizedText){
-    throw new Error("Failed to vectorize text")
-  }
-
-  return vectorizedText;
+function vectorizeText(text: string): Promise<number[]> {
+  return embeddingClient.embed(text);
 }
 
 async function generateEmbeddings() {

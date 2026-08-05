@@ -10,6 +10,7 @@ import { PageRepository } from '../repositories/page.repository';
 import { ProjectRepository } from '../repositories/project.repository';
 import { SkillRepository } from '../repositories/skill.repository';
 import { ClassificationAction } from '../types/integration';
+import { getRandomStatus, StatusCategory } from '../utils/statusMessages';
 
 export class ChatService {
   private conversationRepository: ConversationRepository;
@@ -96,14 +97,14 @@ export class ChatService {
     conversationId: string,
     onStatus?: (status: string) => void
   ): Promise<string> {
-    onStatus?.("Searching through Yusif's work...");
+    onStatus?.(getRandomStatus(StatusCategory.SEARCHING));
     // fetch knowledge base context relevant to the question
     const context = await this.fetchKnowledgeBaseContext(question);
 
     // fetch converstaion history
     const messages = await this.messageRepository.findByConversationId(conversationId);
 
-    onStatus?.('Almost there...');
+    onStatus?.(getRandomStatus(StatusCategory.FINALIZING));
     return this.modelClient.answerQuestion(question, context, messages);
   }
 }

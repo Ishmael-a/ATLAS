@@ -1,21 +1,17 @@
-import { ModelClient, EmbeddingClient } from '../types/client';
+import { ModelClient } from '../types/client';
 import { OpenAIClient } from './openai.client';
 import { GroqClient } from './groq.client';
-import { OpenAIEmbeddingClient } from './openai.embedding.client';
 import { GeminiEmbeddingClient } from './gemini.embedding.client';
 import { ProviderUnavailableError } from '../lib/errors';
 import { ProviderRegistry } from '../lib/providerRegistry';
 
 export class ModelOrchestrator implements ModelClient {
   private modelRegistry: ProviderRegistry<ModelClient>;
-  private embeddingRegistry: ProviderRegistry<EmbeddingClient>;
+  private embeddingClient: GeminiEmbeddingClient;
 
-  private constructor(
-    modelRegistry: ProviderRegistry<ModelClient>,
-    embeddingRegistry: ProviderRegistry<EmbeddingClient>
-  ) {
+  private constructor(modelRegistry: ProviderRegistry<ModelClient>) {
     this.modelRegistry = modelRegistry;
-    this.embeddingRegistry = embeddingRegistry;
+    this.embeddingClient = new GeminiEmbeddingClient();
   }
 
   static async create(): Promise<ModelOrchestrator> {
@@ -34,26 +30,11 @@ export class ModelOrchestrator implements ModelClient {
 
     console.log(`Successfully connected to ${modelRegistry.getCurrentProviderName()}`);
 
-    const embeddingRegistry = new ProviderRegistry<EmbeddingClient>(
-      new Map(
-        Object.entries({
-          openai: new OpenAIEmbeddingClient(),
-          gemini: new GeminiEmbeddingClient(),
-        })
-      )
-    );
-
-    return new ModelOrchestrator(modelRegistry, embeddingRegistry);
+    return new ModelOrchestrator(modelRegistry);
   }
 
-  async vectorizeText(text: string): Promise<number[]> {
-    try {
-      return await this.embeddingRegistry.getCurrentProvider().embed(text);
-    } catch (error) {
-      if (!(error instanceof ProviderUnavailableError)) throw error;
-      this.embeddingRegistry.switchToNextProvider();
-      return this.vectorizeText(text);
-    }
+  vectorizeText(text: string): Promise<number[]> {
+    return this.embeddingClient.embed(text);
   }
 
   async classifyMessage(message: string, pagesWithSections: any[]): Promise<any> {
