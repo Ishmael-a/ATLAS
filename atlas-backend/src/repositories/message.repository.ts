@@ -1,4 +1,4 @@
-import { Message, MessageType, Sender } from "../../generated/prisma/client";
+import { Message, MessageType, Sender } from "../generated/prisma/client";
 import { prisma } from "../config/db";
 
 

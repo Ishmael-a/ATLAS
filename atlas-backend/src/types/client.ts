@@ -1,4 +1,4 @@
-import { Message } from "../../generated/prisma/client";
+import { Message } from "../generated/prisma/client";
 import { ClassificationAction } from "./integration";
 
 

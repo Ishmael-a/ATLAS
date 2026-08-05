@@ -1,4 +1,4 @@
-import { ProjectLayer, ProjectType, SkillProficiency } from "../generated/prisma/client";
+import { ProjectLayer, ProjectType, SkillProficiency } from "../src/generated/prisma/client";
 import { prisma } from "../src/config/db";
 import { OpenAIEmbeddingClient } from "../src/integrations/openai.embedding.client";
 import { GeminiEmbeddingClient } from "../src/integrations/gemini.embedding.client";

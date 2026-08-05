@@ -1,4 +1,4 @@
-import { Conversation } from "../../generated/prisma/client";
+import { Conversation } from "../generated/prisma/client";
 import { prisma } from "../config/db";
 
 export class ConversationRepository {

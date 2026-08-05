@@ -1,6 +1,6 @@
 import OpenAI, { APIConnectionError, RateLimitError, InternalServerError } from "openai";
 import { env } from "../config/env";
-import { Message } from "../../generated/prisma/client";
+import { Message } from "../generated/prisma/client";
 import { ClassificationResult } from "../types/integration";
 import { ModelClient, QuestionContext } from "../types/client";
 import { buildAnswerPrompt, buildClassificationPrompt } from "../utils/prompts";

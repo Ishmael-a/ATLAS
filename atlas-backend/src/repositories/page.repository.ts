@@ -1,4 +1,4 @@
-import { PageGetPayload } from "../../generated/prisma/models";
+import { PageGetPayload } from "../generated/prisma/models";
 import { prisma } from "../config/db";
 import { findSimilarInTable } from "../utils/vectorSearch";
 

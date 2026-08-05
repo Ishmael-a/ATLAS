@@ -1,5 +1,5 @@
-import { Conversation } from "../../generated/prisma/client";
-import { Sender, MessageType } from "../../generated/prisma/enums";
+import { Conversation } from "../generated/prisma/client";
+import { Sender, MessageType } from "../generated/prisma/enums";
 import { ValidationError } from "../lib/errors";
 import { ModelOrchestrator, modelOrchestrator } from "../integrations/model.orchestrator";
 import { AboutRepository } from "../repositories/about.repository";

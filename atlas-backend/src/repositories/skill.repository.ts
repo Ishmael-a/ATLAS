@@ -1,4 +1,4 @@
-import { Skill } from "../../generated/prisma/client";
+import { Skill } from "../generated/prisma/client";
 import { prisma } from "../config/db";
 import { findSimilarInTable } from "../utils/vectorSearch";
 

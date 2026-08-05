@@ -1,4 +1,4 @@
-import { Experience } from "../../generated/prisma/client";
+import { Experience } from "../generated/prisma/client";
 import { prisma } from "../config/db";
 import { findSimilarInTable } from "../utils/vectorSearch";
 
