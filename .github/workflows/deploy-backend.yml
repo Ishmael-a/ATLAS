@@ -29,6 +29,12 @@ jobs:
       - name: Install project dependencies
         working-directory: atlas-backend
         run:  npm install
+        
+      - name: Generate prisma client so type check resolves prisma types cleanly
+        working-directory: atlas-backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma generate
 
       - name: Type-check project
         working-directory: atlas-backend

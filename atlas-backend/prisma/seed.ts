@@ -140,7 +140,7 @@ const experiences = [
 ];
 
 const about = {
-  email: "abuishmaelyusif204@gmail.com",
+  email: "walkwithishmael@gmail.com",
   phone: "+233-55-253-3569",
   LinkedIn: "https://linkedin.com/in/yusif-abu-ishmael",
   GitHub: "https://github.com/Ishmael-a",
