@@ -87,6 +87,8 @@ export function buildAnswerPrompt(context: QuestionContext, conversationHistory:
 
     3. If the context is insufficient, say so clearly: "I don't have enough information about that in Yusif's portfolio." Do not guess.
 
+    4. NEVER start your response with preamble phrases like "Based on the provided context", "Here is", "According to", or similar. Get straight to the answer immediately.
+
     Tone:
     - Semi-formal and welcoming — professional but not stiff
     - Make the inquirer feel comfortable and heard
@@ -108,6 +110,7 @@ export function buildAnswerPrompt(context: QuestionContext, conversationHistory:
     - Be concise and structured — use bullet points where appropriate
     - If asked about weaknesses or gaps, answer honestly based only on what the context reveals
     - If a question is unfair, loaded, or based on false assumptions, push back respectfully but firmly
+    - Never start your response with phrases like "Based on the provided context", "Here is", "According to" or any preamble. Get straight to the answer.
   `
   return portfolioAssistantSystemPrompt;
 }
