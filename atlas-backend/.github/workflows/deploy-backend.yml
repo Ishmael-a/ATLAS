@@ -38,3 +38,11 @@ jobs:
       - name: Build project
         working-directory: atlas-backend
         run:  npm run build
+
+  deploy: # Tell Render to trigger deployment
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deployment via curl
+        run: curl "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"   
