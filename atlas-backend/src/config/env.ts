@@ -15,25 +15,26 @@ interface Config {
   OPENAI_MODEL_NAME?: string;
 }
 
-const REQUIRED_VARS:(keyof Config)[] = [
+const REQUIRED_VARS: (keyof Config)[] = [
   'PORT',
   'ENVIRONMENT',
   'DATABASE_URL',
   'OPENAI_API_KEY',
   'GROQ_API_KEY',
   'GOOGLE_GENAI_API_KEY',
-]
-
+];
 
 function loadConfig(): Config {
   const missingVars: (keyof Config)[] = [];
 
-  for(const envVar of REQUIRED_VARS){
-    if(!process.env[envVar]) missingVars.push(envVar);
+  for (const envVar of REQUIRED_VARS) {
+    if (!process.env[envVar]) missingVars.push(envVar);
   }
 
-  if(missingVars.length > 0){
-    throw new Error(`Missing critical environment variables:\n${missingVars.map(v => `  - ${v}`).join('\n')}\n\nPlease add them to your .env file.`)
+  if (missingVars.length > 0) {
+    throw new Error(
+      `Missing critical environment variables:\n${missingVars.map((v) => `  - ${v}`).join('\n')}\n\nPlease add them to your .env file.`
+    );
   }
 
   return {
@@ -43,10 +44,13 @@ function loadConfig(): Config {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
     GOOGLE_GENAI_API_KEY: process.env.GOOGLE_GENAI_API_KEY!,
     GROQ_API_KEY: process.env.GROQ_API_KEY!,
-    ...(process.env.GROQ_MODEL_NAME !== undefined && { GROQ_MODEL_NAME: process.env.GROQ_MODEL_NAME }),
-    ...(process.env.OPENAI_MODEL_NAME !== undefined && { OPENAI_MODEL_NAME: process.env.OPENAI_MODEL_NAME }),
-  }
+    ...(process.env.GROQ_MODEL_NAME !== undefined && {
+      GROQ_MODEL_NAME: process.env.GROQ_MODEL_NAME,
+    }),
+    ...(process.env.OPENAI_MODEL_NAME !== undefined && {
+      OPENAI_MODEL_NAME: process.env.OPENAI_MODEL_NAME,
+    }),
+  };
 }
 
-
-export const env = loadConfig()
+export const env = loadConfig();

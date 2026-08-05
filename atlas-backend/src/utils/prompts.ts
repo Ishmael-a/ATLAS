@@ -1,6 +1,5 @@
-import { Message } from "../generated/prisma/client";
-import { QuestionContext } from "../types/client";
-
+import { Message } from '../generated/prisma/client';
+import { QuestionContext } from '../types/client';
 
 export function buildClassificationPrompt(pagesWithSections: any[]) {
   const classificationSystemPrompt = `
@@ -68,11 +67,10 @@ export function buildClassificationPrompt(pagesWithSections: any[]) {
     - If the user requests navigation to a page or section that does not exist in the provided list, classify as OUT_OF_SCOPE and explain that the page or section does not exist on the site
     - Never include actions not in the list above
     - Never return anything outside the JSON object
-  `
+  `;
 
   return classificationSystemPrompt;
 }
-
 
 export function buildAnswerPrompt(context: QuestionContext, conversationHistory: Message[]) {
   const portfolioAssistantSystemPrompt = `
@@ -87,7 +85,7 @@ export function buildAnswerPrompt(context: QuestionContext, conversationHistory:
 
     3. If the context is insufficient, say so clearly: "I don't have enough information about that in Yusif's portfolio." Do not guess.
 
-    4. NEVER start your response with preamble phrases like "Based on the provided context", "Here is", "According to", or similar. Get straight to the answer immediately.
+    4.  Avoid unnecessary preamble like "Based on the provided context" or "According to the information provided". Lead with the answer directly, but maintain a warm and welcoming tone.
 
     Tone:
     - Semi-formal and welcoming — professional but not stiff
@@ -103,14 +101,14 @@ export function buildAnswerPrompt(context: QuestionContext, conversationHistory:
     Site Structure: ${JSON.stringify(context.pages, null, 2)}
 
     Conversation history:
-    ${conversationHistory.map(m => `${m.sentBy}: ${m.content}`).join('\n')}
+    ${conversationHistory.map((m) => `${m.sentBy}: ${m.content}`).join('\n')}
 
     Rules:
     - Always back claims with specific projects, roles, or achievements from the context
     - Be concise and structured — use bullet points where appropriate
     - If asked about weaknesses or gaps, answer honestly based only on what the context reveals
     - If a question is unfair, loaded, or based on false assumptions, push back respectfully but firmly
-    - Never start your response with phrases like "Based on the provided context", "Here is", "According to" or any preamble. Get straight to the answer.
-  `
+    - Never start your response with phrases like "Based on the provided context", "Here is", "According to" or any preamble. Lead with the answer directly, but maintain a warm and welcoming tone.
+  `;
   return portfolioAssistantSystemPrompt;
 }

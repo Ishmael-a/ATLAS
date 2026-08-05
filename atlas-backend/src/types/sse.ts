@@ -1,6 +1,4 @@
-
-
-export type EVENT_TYPE = "STATUS" | "NAVIGATION" | "ANSWER" | "OUT_OF_SCOPE" | "ERROR";
+export type EVENT_TYPE = 'STATUS' | 'NAVIGATION' | 'ANSWER' | 'OUT_OF_SCOPE' | 'ERROR';
 
 export interface EventTypeResponseMap {
   STATUS: {
@@ -19,12 +17,12 @@ export interface EventTypeResponseMap {
   };
   ERROR: {
     message: string;
-  }
+  };
 }
 
 export type SSEResponse = {
-  [K in EVENT_TYPE] : {
-    event: K
-    data: EventTypeResponseMap[K]
-  }
-}
+  [K in EVENT_TYPE]: {
+    event: K;
+    data: EventTypeResponseMap[K];
+  };
+};

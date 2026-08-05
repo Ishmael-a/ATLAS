@@ -1,11 +1,11 @@
-import { ProviderUnavailableError } from "./errors";
+import { ProviderUnavailableError } from './errors';
 
 export class ProviderRegistry<T> {
   private providers: Map<string, T>;
   private currentProviderName: string;
 
   constructor(providers: Map<string, T>) {
-    if (providers.size === 0) throw new Error("ProviderRegistry requires at least one provider");
+    if (providers.size === 0) throw new Error('ProviderRegistry requires at least one provider');
     this.providers = providers;
     this.currentProviderName = providers.keys().next().value!;
   }
@@ -22,7 +22,7 @@ export class ProviderRegistry<T> {
   switchToNextProvider(): void {
     const previousProviderName = this.currentProviderName;
     const nextEntry = this.findNextEntry(previousProviderName);
-    if (!nextEntry) throw new ProviderUnavailableError("All providers are unavailable");
+    if (!nextEntry) throw new ProviderUnavailableError('All providers are unavailable');
     this.currentProviderName = nextEntry[0];
     console.warn(`${previousProviderName} unavailable, switching to ${this.currentProviderName}`);
   }

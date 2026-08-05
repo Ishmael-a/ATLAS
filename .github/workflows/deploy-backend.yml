@@ -29,6 +29,14 @@ jobs:
       - name: Install project dependencies
         working-directory: atlas-backend
         run:  npm install
+
+      - name: Check formatting
+        working-directory: atlas-backend
+        run: npm run format:check
+
+      - name: Lint
+        working-directory: atlas-backend
+        run: npm run lint
         
       - name: Generate prisma client so type check resolves prisma types cleanly
         working-directory: atlas-backend
