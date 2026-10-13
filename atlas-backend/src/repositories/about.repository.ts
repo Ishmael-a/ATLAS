@@ -1,22 +1,22 @@
 import { About } from '../generated/prisma/client';
 import { prisma } from '../config/db';
-import { findSimilarInTable } from '../utils/vectorSearch';
+import {
+  findSimilarInTable,
+  updateEmbeddingInTable,
+  VectorSearchTable,
+} from '../utils/vectorSearch';
 
 export class AboutRepository {
-  private tableName: string;
-
-  constructor() {
-    this.tableName = 'About';
+  findSimilar(vector: number[]) {
+    return findSimilarInTable(VectorSearchTable.ABOUT, vector, 5);
   }
 
-  async findSimilar(vector: number[]) {
-    const similarAbout = await findSimilarInTable(this.tableName, vector, 5);
-    const sanitizedAbout = [];
-    for (const about of similarAbout as any[]) {
-      const { embedding: _embedding, ...rest } = about;
-      sanitizedAbout.push(rest);
-    }
-    return sanitizedAbout;
+  buildEmbeddingText(about: About): string {
+    return ['About Yusif.', 'Contact: email, phone, LinkedIn, GitHub.', about.bio].join(' ');
+  }
+
+  updateEmbedding(aboutId: string, vector: number[]) {
+    return updateEmbeddingInTable(VectorSearchTable.ABOUT, aboutId, vector);
   }
 
   findAll(): Promise<About[]> {

@@ -1,22 +1,26 @@
 import { Experience } from '../generated/prisma/client';
 import { prisma } from '../config/db';
-import { findSimilarInTable } from '../utils/vectorSearch';
+import {
+  findSimilarInTable,
+  updateEmbeddingInTable,
+  VectorSearchTable,
+} from '../utils/vectorSearch';
 
 export class ExperienceRepository {
-  private tableName: string;
-
-  constructor() {
-    this.tableName = 'Experience';
+  findSimilar(vector: number[]) {
+    return findSimilarInTable(VectorSearchTable.EXPERIENCE, vector, 5);
   }
 
-  async findSimilar(vector: number[]) {
-    const similarExperiences = await findSimilarInTable(this.tableName, vector, 5);
-    const sanitizedExperiences = [];
-    for (const experience of similarExperiences as any[]) {
-      const { embedding: _embedding, ...rest } = experience;
-      sanitizedExperiences.push(rest);
-    }
-    return sanitizedExperiences;
+  buildEmbeddingText(experience: Experience): string {
+    return [
+      `Experience: ${experience.title} at ${experience.company}.`,
+      `Role: ${experience.role}. Location: ${experience.location}.`,
+      experience.description,
+    ].join(' ');
+  }
+
+  updateEmbedding(experienceId: string, vector: number[]) {
+    return updateEmbeddingInTable(VectorSearchTable.EXPERIENCE, experienceId, vector);
   }
 
   findAll(): Promise<Experience[]> {

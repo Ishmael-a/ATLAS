@@ -1,22 +1,26 @@
 import { Skill } from '../generated/prisma/client';
 import { prisma } from '../config/db';
-import { findSimilarInTable } from '../utils/vectorSearch';
+import {
+  findSimilarInTable,
+  updateEmbeddingInTable,
+  VectorSearchTable,
+} from '../utils/vectorSearch';
 
 export class SkillRepository {
-  private tableName: string;
-
-  constructor() {
-    this.tableName = 'Skill';
+  findSimilar(vector: number[]) {
+    return findSimilarInTable(VectorSearchTable.SKILL, vector, 5);
   }
 
-  async findSimilar(vector: number[]) {
-    const similarSkills = await findSimilarInTable(this.tableName, vector, 5);
-    const sanitizedSkills = [];
-    for (const skill of similarSkills as any[]) {
-      const { embedding: _embedding, ...rest } = skill;
-      sanitizedSkills.push(rest);
-    }
-    return sanitizedSkills;
+  buildEmbeddingText(skill: Skill): string {
+    return [
+      `Skill: ${skill.name}.`,
+      `Category: ${skill.category}. Proficiency: ${skill.proficiency}.`,
+      skill.description,
+    ].join(' ');
+  }
+
+  updateEmbedding(skillId: string, vector: number[]) {
+    return updateEmbeddingInTable(VectorSearchTable.SKILL, skillId, vector);
   }
 
   findAll(): Promise<Skill[]> {

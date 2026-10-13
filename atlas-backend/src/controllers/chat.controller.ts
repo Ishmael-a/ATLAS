@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { ChatService } from '../services/chat.service';
 import { SSEStream } from '../streaming/sse';
-import { ValidationError } from '../lib/errors';
+import { ClientError, ValidationError } from '../lib/errors';
 import { getRandomStatus, StatusCategory } from '../utils/statusMessages';
+import { SSEEventType } from '../types/sse';
+import { MessageType, Sender } from '../generated/prisma/enums';
 
 class ChatController {
   private chatService: ChatService;
@@ -40,75 +42,39 @@ class ChatController {
       }
 
       // create message for conversation
-      await this.chatService.createMessage(conversationId, message, 'USER', 'USER');
+      const userMessage = await this.chatService.createMessage(
+        conversationId,
+        message,
+        Sender.USER,
+        MessageType.USER
+      );
 
       // prepare for clasification and send status updates
       sseStream = new SSEStream(response);
       sseStream.open();
-      sseStream.sendEvent('STATUS', {
+      sseStream.sendEvent(SSEEventType.CONVERSATION, { conversationId });
+      sseStream.sendEvent(SSEEventType.STATUS, {
         status: getRandomStatus(StatusCategory.THINKING),
       });
 
-      // classify message with OpenAI
-      const actions = await this.chatService.classifyMessage(message);
-
-      const sortedActions = actions.sort((a, b) => a.priority - b.priority);
-
-      for (const action of sortedActions) {
-        if (action.type === 'NAVIGATION') {
-          const type = 'NAVIGATION';
-          const answer = `[NAVIGATION] page: ${action.pageName} | sectionElementId: ${action.sectionElementId ?? 'none'}`;
-          await this.chatService.createMessage(conversationId, answer, 'SYSTEM', type);
-          sseStream.sendEvent(type, {
-            page: action.pageName,
-            pageSectionElementId: action.sectionElementId,
-          });
-        } else if (action.type === 'QUESTION') {
-          const type = 'ANSWER';
-          const answer = await this.chatService.answerQuestion(
-            action.query,
-            conversationId,
-            (status: string) => sseStream?.sendEvent('STATUS', { status })
-          );
-          const responseMessage = await this.chatService.createMessage(
-            conversationId,
-            answer,
-            'BOT',
-            type
-          );
-          sseStream.sendEvent(type, {
-            message: responseMessage.content,
-          });
-        } else {
-          const type = 'OUT_OF_SCOPE';
-          const responseMessage = await this.chatService.createMessage(
-            conversationId,
-            action.message,
-            'SYSTEM',
-            type
-          );
-          sseStream.sendEvent('OUT_OF_SCOPE', {
-            message: responseMessage.content,
-          });
-        }
-      }
+      await this.chatService.handleMessage(message, conversationId, userMessage.id, sseStream);
 
       // close the stream after all actions are processed until next question
       sseStream.close();
     } catch (error) {
       console.error('Error in sendMessage:', error);
-      const isValidationError = error instanceof ValidationError;
-      const clientMessage = isValidationError
+      const isClientError = error instanceof ClientError;
+      const clientMessage = isClientError
         ? error.message
         : 'Something went wrong while processing your message';
 
       if (response.headersSent && sseStream) {
-        sseStream.sendEvent('ERROR', {
+        sseStream.sendEvent(SSEEventType.ERROR, {
           message: clientMessage,
         });
         sseStream.close();
       } else {
-        return response.status(isValidationError ? 400 : 500).json({
+        return response.status(isClientError ? error.statusCode : 500).json({
           message: 'Error sending message',
           error: clientMessage,
         });

@@ -1,21 +1,46 @@
 import { prisma } from '../config/db';
 
-export async function findSimilarInTable(tableName: string, vector: number[], limit: number) {
-  // CRITICAL: Manually sanitize the tableName string to prevent SQL Injection
-  if (!/^[a-zA-Z0-9_]+$/.test(tableName)) {
-    throw new Error('Invalid table name characters detected!');
-  }
+export enum VectorSearchTable {
+  PROJECT = 'Project',
+  SKILL = 'Skill',
+  EXPERIENCE = 'Experience',
+  ABOUT = 'About',
+}
 
+export async function findSimilarInTable(
+  tableName: VectorSearchTable,
+  vector: number[],
+  limit: number
+) {
   const vectorString = `[${vector.join(',')}]`;
 
   const query = `
     SELECT *, 1 - (embedding <=> $1::vector) AS similarity
     FROM "${tableName}"
+    WHERE embedding IS NOT NULL
     ORDER BY similarity DESC
     LIMIT $2
   `;
 
-  const result = await prisma.$queryRawUnsafe(query, vectorString, limit);
+  const similarRows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
+    query,
+    vectorString,
+    limit
+  );
 
-  return result;
+  return similarRows.map(
+    ({ embedding: _embedding, ...rowWithoutEmbedding }) => rowWithoutEmbedding
+  );
+}
+
+export async function updateEmbeddingInTable(
+  tableName: VectorSearchTable,
+  rowId: string,
+  vector: number[]
+) {
+  await prisma.$executeRawUnsafe(
+    `UPDATE "${tableName}" SET embedding = $1::vector WHERE id = $2`,
+    `[${vector.join(',')}]`,
+    rowId
+  );
 }

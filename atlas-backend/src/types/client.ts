@@ -1,5 +1,6 @@
 import { Message } from '../generated/prisma/client';
 import { ClassificationAction } from './integration';
+import { PageWithSections } from '../repositories/page.repository';
 
 export type QuestionContext = {
   pages: any[];
@@ -9,14 +10,16 @@ export type QuestionContext = {
   about: any[];
 };
 
-export interface ModelClient {
-  classifyMessage(message: string, pagesWithSections: any[]): Promise<ClassificationAction[]>;
+export interface ModelClientInterface {
+  classifyMessage(
+    message: string,
+    pagesWithSections: PageWithSections[]
+  ): Promise<ClassificationAction[]>;
   answerQuestion(
     question: string,
     context: QuestionContext,
     conversationHistory: Message[]
   ): Promise<string>;
-  ping?(): Promise<boolean>;
 }
 
 export interface EmbeddingClient {

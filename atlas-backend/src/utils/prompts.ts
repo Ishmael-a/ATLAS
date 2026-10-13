@@ -1,4 +1,4 @@
-import { Message } from '../generated/prisma/client';
+import { Message, Sender } from '../generated/prisma/client';
 import { QuestionContext } from '../types/client';
 
 export function buildClassificationPrompt(pagesWithSections: any[]) {
@@ -72,7 +72,20 @@ export function buildClassificationPrompt(pagesWithSections: any[]) {
   return classificationSystemPrompt;
 }
 
-export function buildAnswerPrompt(context: QuestionContext, conversationHistory: Message[]) {
+const CHAT_ROLE_BY_SENDER: Record<Sender, 'user' | 'assistant'> = {
+  USER: 'user',
+  BOT: 'assistant',
+  SYSTEM: 'assistant',
+};
+
+export function buildChatHistory(conversationHistory: Message[]) {
+  return conversationHistory.map((historyMessage) => ({
+    role: CHAT_ROLE_BY_SENDER[historyMessage.sentBy],
+    content: historyMessage.content,
+  }));
+}
+
+export function buildAnswerPrompt(context: QuestionContext) {
   const portfolioAssistantSystemPrompt = `
     You are Atlas, an intelligent portfolio assistant for Yusif Kwesi Abu-Ishmael, a fullstack software engineer.
     Your job is to help recruiters, engineers, and visitors understand Yusif's skills, experience, and projects.
@@ -99,9 +112,6 @@ export function buildAnswerPrompt(context: QuestionContext, conversationHistory:
     Experience: ${JSON.stringify(context.experiences, null, 2)}
     About: ${JSON.stringify(context.about, null, 2)}
     Site Structure: ${JSON.stringify(context.pages, null, 2)}
-
-    Conversation history:
-    ${conversationHistory.map((m) => `${m.sentBy}: ${m.content}`).join('\n')}
 
     Rules:
     - Always back claims with specific projects, roles, or achievements from the context

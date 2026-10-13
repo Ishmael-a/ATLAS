@@ -1,8 +1,16 @@
 import { ProjectLayer, ProjectType, SkillProficiency } from "../src/generated/prisma/client";
 import { prisma } from "../src/config/db";
 import { GeminiEmbeddingClient } from "../src/integrations/gemini.embedding.client";
+import { AboutRepository } from "../src/repositories/about.repository";
+import { ExperienceRepository } from "../src/repositories/experience.repository";
+import { ProjectRepository } from "../src/repositories/project.repository";
+import { SkillRepository } from "../src/repositories/skill.repository";
 
 const embeddingClient = new GeminiEmbeddingClient();
+const projectRepository = new ProjectRepository();
+const skillRepository = new SkillRepository();
+const experienceRepository = new ExperienceRepository();
+const aboutRepository = new AboutRepository();
 
 const pages = [
   {
@@ -152,54 +160,30 @@ const about = {
   `,
 };
 
-function vectorizeText(text: string): Promise<number[]> {
-  return embeddingClient.embed(text);
-}
-
 async function generateEmbeddings() {
   console.log("Generating embeddings...");
 
-  const projects = await prisma.project.findMany();
-  for (const project of projects) {
-    const embedding = await vectorizeText(project.description);
-    await prisma.$executeRawUnsafe(
-      `UPDATE "Project" SET embedding = $1::vector WHERE id = $2`,
-      `[${embedding.join(",")}]`,
-      project.id
-    );
+  for (const project of await projectRepository.findAll()) {
+    const vector = await embeddingClient.embed(projectRepository.buildEmbeddingText(project));
+    await projectRepository.updateEmbedding(project.id, vector);
     console.log(`Embedded project: ${project.name}`);
   }
 
-  const skills = await prisma.skill.findMany();
-  for (const skill of skills) {
-    const embedding = await vectorizeText(skill.description);
-    await prisma.$executeRawUnsafe(
-      `UPDATE "Skill" SET embedding = $1::vector WHERE id = $2`,
-      `[${embedding.join(",")}]`,
-      skill.id
-    );
+  for (const skill of await skillRepository.findAll()) {
+    const vector = await embeddingClient.embed(skillRepository.buildEmbeddingText(skill));
+    await skillRepository.updateEmbedding(skill.id, vector);
     console.log(`Embedded skill: ${skill.name}`);
   }
 
-  const experiences = await prisma.experience.findMany();
-  for (const experience of experiences) {
-    const embedding = await vectorizeText(experience.description);
-    await prisma.$executeRawUnsafe(
-      `UPDATE "Experience" SET embedding = $1::vector WHERE id = $2`,
-      `[${embedding.join(",")}]`,
-      experience.id
-    );
+  for (const experience of await experienceRepository.findAll()) {
+    const vector = await embeddingClient.embed(experienceRepository.buildEmbeddingText(experience));
+    await experienceRepository.updateEmbedding(experience.id, vector);
     console.log(`Embedded experience: ${experience.title}`);
   }
 
-  const abouts = await prisma.about.findMany();
-  for (const about of abouts) {
-    const embedding = await vectorizeText(about.bio);
-    await prisma.$executeRawUnsafe(
-      `UPDATE "About" SET embedding = $1::vector WHERE id = $2`,
-      `[${embedding.join(",")}]`,
-      about.id
-    );
+  for (const about of await aboutRepository.findAll()) {
+    const vector = await embeddingClient.embed(aboutRepository.buildEmbeddingText(about));
+    await aboutRepository.updateEmbedding(about.id, vector);
     console.log(`Embedded about: ${about.email}`);
   }
 

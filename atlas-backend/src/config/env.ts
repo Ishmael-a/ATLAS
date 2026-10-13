@@ -38,7 +38,7 @@ function loadConfig(): Config {
   }
 
   return {
-    PORT: Number(process.env.PORT) || 3000,
+    PORT: Number(process.env.PORT),
     DATABASE_URL: process.env.DATABASE_URL!,
     ENVIRONMENT: (process.env.ENVIRONMENT as Config['ENVIRONMENT']) || 'development',
     OPENAI_API_KEY: process.env.OPENAI_API_KEY!,

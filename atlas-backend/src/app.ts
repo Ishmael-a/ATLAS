@@ -9,7 +9,10 @@ const app = express();
 const chatRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10, // limit each IP to 10 requests per windowMs
-  message: 'Too many requests from this IP, please try again after a minute.',
+  message: {
+    message: 'Too many requests',
+    error: 'Too many requests from this IP, please try again after a minute.',
+  },
 });
 
 app.use(cors());

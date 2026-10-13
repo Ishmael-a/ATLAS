@@ -13,14 +13,20 @@ export class MessageRepository {
     });
   }
 
-  async findByConversationId(conversationId: string): Promise<Message[]> {
+  findConversationHistory(
+    conversationId: string,
+    excludedMessageId: string,
+    limit: number
+  ): Promise<Message[]> {
     return prisma.message.findMany({
       where: {
         conversationId,
+        id: { not: excludedMessageId },
       },
       orderBy: {
         sentAt: 'asc',
       },
+      take: -limit,
     });
   }
 }

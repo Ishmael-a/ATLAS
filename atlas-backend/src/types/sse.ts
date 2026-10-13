@@ -1,28 +1,36 @@
-export type EVENT_TYPE = 'STATUS' | 'NAVIGATION' | 'ANSWER' | 'OUT_OF_SCOPE' | 'ERROR';
+export enum SSEEventType {
+  CONVERSATION = 'CONVERSATION',
+  STATUS = 'STATUS',
+  NAVIGATION = 'NAVIGATION',
+  ANSWER = 'ANSWER',
+  OUT_OF_SCOPE = 'OUT_OF_SCOPE',
+  ERROR = 'ERROR',
+}
 
 export interface EventTypeResponseMap {
-  STATUS: {
+  [SSEEventType.CONVERSATION]: {
+    conversationId: string;
+  };
+  [SSEEventType.STATUS]: {
     status: string;
   };
-  NAVIGATION: {
+  [SSEEventType.NAVIGATION]: {
     page: string;
     pageSectionElementId?: string | undefined;
     url?: string;
   };
-  ANSWER: {
+  [SSEEventType.ANSWER]: {
     message: string;
   };
-  OUT_OF_SCOPE: {
+  [SSEEventType.OUT_OF_SCOPE]: {
     message: string;
   };
-  ERROR: {
+  [SSEEventType.ERROR]: {
     message: string;
   };
 }
 
-export type SSEResponse = {
-  [K in EVENT_TYPE]: {
-    event: K;
-    data: EventTypeResponseMap[K];
-  };
-};
+export interface ChatEventStream {
+  sendEvent<K extends SSEEventType>(event: K, data: EventTypeResponseMap[K]): void;
+  isClientConnected(): boolean;
+}

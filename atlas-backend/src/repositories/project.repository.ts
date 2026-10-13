@@ -1,23 +1,28 @@
 import { Project } from '../generated/prisma/client';
 import { prisma } from '../config/db';
-import { findSimilarInTable } from '../utils/vectorSearch';
+import {
+  findSimilarInTable,
+  updateEmbeddingInTable,
+  VectorSearchTable,
+} from '../utils/vectorSearch';
 
 export class ProjectRepository {
-  private tableName: string;
-
-  constructor() {
-    this.tableName = 'Project';
+  findSimilar(vector: number[]) {
+    return findSimilarInTable(VectorSearchTable.PROJECT, vector, 5);
   }
 
-  async findSimilar(vector: number[]) {
-    const similarProjects = await findSimilarInTable(this.tableName, vector, 5);
-    const sanitizedProjects = [];
-    for (const project of similarProjects as any[]) {
-      const { embedding: _embedding, ...rest } = project;
-      sanitizedProjects.push(rest);
-    }
+  buildEmbeddingText(project: Project): string {
+    return [
+      `Project: ${project.name}.`,
+      `Type: ${project.type}. Layer: ${project.layer}.`,
+      `Tech stack: ${project.techStack.join(', ')}.`,
+      `Highlights: ${project.highlights.join(', ')}.`,
+      project.description,
+    ].join(' ');
+  }
 
-    return sanitizedProjects;
+  updateEmbedding(projectId: string, vector: number[]) {
+    return updateEmbeddingInTable(VectorSearchTable.PROJECT, projectId, vector);
   }
 
   findAll(): Promise<Project[]> {
